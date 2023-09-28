@@ -1,0 +1,95 @@
+HW5-1:
+
+Test
+
+Feature: Amazon Add Item Shopping cart test
+
+  Scenario: User can add item to Amazon Shopping cart
+    Given Open amazon page
+    When Input Key chain into Amazon search field
+    And click on Amazon search icon
+    And Click on the first product
+    And Click on Add to cart button
+    Then Verify cart has 1 Item
+
+Steps
+
+from selenium.webdriver.common.by import By
+from behave import given, when, then
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
+
+PRODUCT_RESULT = (By.XPATH, "//div[@data-component-type='s-search-result']//a[.//span[@class='a-price-whole']]")
+ADD_TO_CART_BTN = (By.ID, 'add-to-cart-button')
+CART = (By.ID, 'nav-cart-count')
+
+
+@when('Input key chain into Amazon search field')
+def input_amazon_search(context):
+    search_field = context.driver.find_element(By.ID, 'twotabsearchtextbox')
+    search_field.send_keys('key chain')
+
+
+@when('click on Amazon search icon')
+def click_search_amazon(context):
+    search_icon = context.driver.find_element(By.ID, 'nav-search-submit-button')
+    search_icon.click()
+
+
+@when('Click on the first product')
+def click_first_product(context):
+    context.driver.wait = WebDriverWait(context.driver, 5)
+    e = context.driver.wait.until(EC.element_to_be_clickable(PRODUCT_RESULT))
+    e.click()
+
+
+@when('Click on Add to cart button')
+def click_add_to_cart(context):
+    context.driver.wait = WebDriverWait(context.driver, 5)
+    e = context.driver.wait.until(EC.element_to_be_clickable(ADD_TO_CART_BTN))
+    e.click()
+
+
+@then('Verify cart has {expected_count} Item')
+def verify_cart_count(context, expected_count):
+    cart_count = context.driver.find_element(*CART).text
+    assert expected_count == cart_count, f'Expected {expected_count} items but got {cart_count}'
+
+
+**********
+HW5-2
+
+Test
+Feature: Test Shirt Color Selection
+
+  Scenario: User can select Shirt Colors
+    Given Open Amazon Shirt B08HQ6NK17 page
+    Then Verify user can click through colors
+
+Steps
+
+from selenium.webdriver.common.by import By
+from behave import given, when, then
+
+SELECTED_COLOR = (By.CSS_SELECTOR, '#variation_color_name .selection')
+COLOR_OPTION = (By.CSS_SELECTOR, '#variation_color_name li')
+
+
+@given('Open Amazon Shirt B08HQ6NK17 page')
+def verify_amazon_shirt_page(context):
+    context.driver.get(f'https://www.amazon.com/dp/B08HQ6NK17/')
+
+
+@then('Verify user can click through colors')
+def verify_can_select_colors(context):
+    expected_colors = ['Blackgreyblue', 'Blackgreywhite', 'Blackgreyyellow', 'Blackgreynavy']
+    colors = context.driver.find_elements(*COLOR_OPTION)
+
+    for i in range(len(colors)):
+        colors[i].click()
+        selected_color = context.driver.find_element(*SELECTED_COLOR).text
+        assert expected_colors[i] == selected_color, f'Expected (expected_colors[i]) but got (selected_color)'
+
+
+

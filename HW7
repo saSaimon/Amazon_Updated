@@ -1,0 +1,176 @@
+HW7-1-a
+
+Test:
+Feature: Amazon Orders Links Test
+
+
+  Scenario: Logged out user sees Sign in page when clicking Orders
+    Given Open Amazon page
+    When Click Amazon Orders link
+    Then Verify Sign In page is opened
+
+Steps:
+
+Amazon_Orders = (By.ID, '#nav-orders')
+Sign_in_result = (By.XPATH, "//div[@class='a-box']//h1")
+
+
+@given('Open Amazon page')
+def open_amazon(context):
+    context.app.main_page.open_main_page()
+
+
+@when('Click Amazon Orders link')
+def click_amazon_orders_link(context):
+    context.app.main_page.click_amazon_orders()
+
+
+@then('Verify Sign In page is opened')
+def verify_Sign_in_page(context):
+    context.app.Sign_in_page.verify_Sign_in_page(Orders_click_result)
+
+
+class MainPage(Page):
+    Amazon_Orders = (By.ID, '#nav-orders')
+    Cart_Icon = (By.ID, '#nav-cart-count')
+
+    def open_main_page(self):
+        self.open_url('https://www.amazon.com/')
+
+    def click_amazon_orders(self):
+        self.click(*self.Amazon_Orders)
+
+class Application:
+
+    def __init__(self, driver):
+        self.driver = driver
+        self.main_page = MainPage(self.driver)
+        self.sign_in_page = SigninPage(self.driver)
+
+class SigninPage(Page):
+    SIGN_IN_HEADER = (By.XPATH, "//div[@class='a-box-inner a-padding-extra-large']/h1")
+
+    def verify_sign_in_page(self):
+        actual_text = self.find_element(*self.SIGN_IN_HEADER).text
+        assert "Sign In" in actual_text, f'Sign In page did no open'
+
+HW7-1-b
+
+Test:
+
+Scenario: 'Your Shopping Cart is empty' shown if no product added
+ Given Open Amazon page
+ When Click on cart icon
+ Then Verify "Your Shopping Cart is empty." text present
+
+Steps:
+
+Cart_Icon = (By.ID, '#nav-cart-count')
+Cart_Empty = (By.XPATH, "//div[@class='a-row sc-your-amazon-cart-is-empty']/h2")
+
+
+
+@given('Open Amazon page')
+def open_amazon(context):
+    context.app.main_page.open_main_page()
+
+
+@when('Click on cart icon')
+def click_amazon_Cart_Icon(context):
+    context.app.main_page.click_amazon_Cart_Icon()
+
+
+@then('Verify "Your Shopping Cart is empty." text present')
+def verify_cart_empty(context, youramazoncartempty):
+    context.app.cart_empty.verify_cart_empty(Cart_Empty)
+
+
+class MainPage(Page):
+    Cart_Icon = (By.ID, '#nav-cart-count')
+
+    def open_main_page(self):
+        self.open_url('https://www.amazon.com/')
+
+    def click_Cart_Icon(self):
+        self.click(*self.Cart_Icon)
+
+class Application:
+
+    def __init__(self, driver):
+        self.driver = driver
+        self.main_page = MainPage(self.driver)
+        self.cart_empty = cartempty(self.driver)
+
+class CartEmptyPage(Page):
+    Cart_Empty = (By.XPATH, "//div[@class='a-row sc-your-amazon-cart-is-empty']")
+
+    def verify_Sign_in_page(self, youramazoncartisempty):
+        self.verify_text(youramazoncartisempty, *self.Cart_Empty)
+
+**********************************************
+
+HW7-2
+
+Test:
+
+Feature: Amazon Add Item Shopping cart test
+
+  Scenario: User can add item to Amazon Shopping cart
+    Given Open amazon page
+    When Input Key chain into Amazon search field
+    And click on Amazon search icon
+    And Click on the first product
+    And Click on Add to cart button
+    Then Verify cart has 1 Item
+
+Steps:
+
+PRODUCT_RESULT = (By.XPATH, "//div[@data-component-type='s-search-result']//a[.//span[@class='a-price-whole']]")
+ADD_TO_CART_BTN = (By.ID, 'add-to-cart-button')
+CART = (By.ID, 'nav-cart-count')
+SEARCH_FIELD = (By.ID, 'twotabsearchtextbox')
+
+@given('Open Amazon page')
+def open_amazon(context):
+    context.app.main_page.open_main_page()
+
+@when('Input key chain into Amazon search field')
+def input_amazon_search(context, SEARCH_FIELD):
+    context.app.main_page.click_amazon_search(SEARCH_FIELD)
+
+
+@when('click on Amazon search icon')
+def click_search_amazon(context):
+    context.app.main_page.click_search_amazon()
+
+
+@when('Click on the first product')
+def click_first_product(context):
+    context.app.main_page.click_first_product()
+    context.app.main_page.wait.until_first_product(5)
+
+
+@when('Click on Add to cart button')
+def click_add_to_cart(context):
+    context.app.main_page.click_add_cart()
+    context.app.main_page.wait.until_add_cart(5)
+
+
+@then('Verify cart has {expected_count} Item')
+def verify_cart_count(context, cart):
+    context.app.cart_show_item.verify_cart_show_item(PRODUCT_RESULT)
+
+
+class CartResultPage(Page):
+    PRODUCT_RESULT = (By.XPATH, "//div[@data-component-type='s-search-result']//a[.//span[@class='a-price-whole']]")
+
+    def verify_show_show_item_page(self, cart):
+        self.verify_cart_count(cart, *self.PRODUCT_RESULT)
+
+
+class Application:
+
+    def __init__(self, driver):
+        self.driver = driver
+        self.main_page = MainPage(self.driver)
+        self.cart_show_item = CartResultPage(self.driver)

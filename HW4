@@ -1,0 +1,83 @@
+HW4: Part1
+
+Test
+
+# Created by Thinkpad at 2/11/2021
+Feature: Amazon BestSellers Test
+
+  Scenario: Verify Amazon BestSellers has 5 links
+    Given Open amazon bestsellers page
+    Then verify 5 links are displayed
+
+Steps
+
+from selenium.webdriver.common.by import By
+from behave import given, when, then
+
+bestsellers = (By.CSS_SELECTOR, "a[href*='zg_bs_tab']")
+
+
+@given('Open amazon bestsellers page')
+def open_bestsellers(context):
+    context.driver.get('https://www.amazon.com/gp/bestsellers/?ref_=nav_cs_bestsellers')
+
+
+@then('verify 5 links are displayed')
+def verify_links(context):
+    actual_links = context.driver.find_elements(*bestsellers)
+    assert len(actual_links) == 5, f'expected 5 links but we see {len(actual_links)}'
+
+*******************
+
+HW4 Part2
+
+Test
+
+# Created by Thinkpad at 2/11/2021
+Feature: Amazon Add Item Shopping cart test
+
+  Scenario: User can add item to Amazon Shopping cart
+    Given Open amazon page
+    When Imput Mouse into Amazon search field
+    And click on Amazon search icon
+    And Click on the first product
+    And Click on Add to cart button
+    Then Verify cart has 1 Item
+
+Steps
+
+from selenium.webdriver.common.by import By
+from behave import given, when, then
+from selenium.webdriver.common.keys import Keys
+
+PRODUCT_RESULT = (By.XPATH, "//div[@data-component-type='s-search-result']//a[.//span[@class='a-price']]")
+ADD_TO_CART_BTN = (By.ID, 'add-to-cart-button')
+CART = (By.ID, 'nav-cart-count')
+
+
+@when('Imput Mouse into Amazon search field')
+def input_amazon_search(context):
+    search_field = context.driver.find_element(By.ID, 'twotabsearchtextbox')
+    search_field.send_keys('Mouse')
+
+
+@when('click on Amazon search icon')
+def click_search_amazon(context):
+    search_icon = context.driver.find_element(By.ID, 'nav-search-submit-button')
+    search_icon.click()
+
+
+@when('Click on the first product')
+def click_first_product(context):
+    context.driver.find_element(*PRODUCT_RESULT).click()
+
+
+@when('Click on Add to cart button')
+def click_add_to_cart(context):
+    context.driver.find_element(*ADD_TO_CART_BTN).click()
+
+
+@then('Verify cart has {expected_count} Item')
+def verify_cart_count(context, expected_count):
+    cart_count = context.driver.find_element(*CART).text
+    assert expected_count == cart_count, f'Expected {expected_count} items but got {cart_count}'

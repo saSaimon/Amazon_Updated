@@ -1,0 +1,92 @@
+Homework3_1 CSS Locators: Amazon
+
+Amazon logo: $$("a.a-link-nav-icon i")
+Create account: $$("div.a-box-inner h1")
+Your name: $$('#ap_customer_name')
+Email: $$('#ap_email')
+Password: $$('#ap_password')
+Passwords must be at least 6 characters.: $x("//*[contains(text(), 'Passwords must be at least 6 characters.')]")
+Re-enter password: $$("input[name='passwordCheck']")
+create your Amazon account: $$("input[type='submit']")
+Condition of use: $$("a[href*='ap_register_notification_condition_of_use']")
+Privacy Notice: $$("a[href*='ap_register_notification_privacy_notice']")
+Sign-in: $$("a[href*='signin']")
+
+
+*****
+Homework3_2 BDD
+
+Features
+Test:
+# Created by Thinkpad at 2/4/2021
+Feature: Amazon helpsearch Cancel order test
+
+  Scenario: User can search for cancel order in Amazon Helpsearch
+    Given Open amazon help page
+    When Input cancel order into amazon helpsearch field
+    And Click on cancel order text
+    Then Product results for cancel order are shown
+
+
+Steps:
+from selenium.webdriver.common.by import By
+from behave import given, when, then
+from selenium.webdriver.common.keys import Keys
+
+@given('Open amazon help page')
+def open_amazonhelp(context):
+    context.driver.get('https://www.amazon.com/gp/help/customer/display.html')
+
+
+@when('Input cancel order into amazon helpsearch field')
+def input_amazonhelpsearch(context):
+    search_field = context.driver.find_element(By.ID, "helpsearch")
+    search_field.send_keys('cancel order')
+
+@when('Click on cancel order text')
+def click_cancelorder_text(context):
+    search_field = context.driver.find_element(By.ID, "helpsearch")
+    search_field.send_keys(Keys.ENTER)
+
+
+@then('Product results for cancel order are shown')
+def verify_search_result(context):
+    actual_text = context.driver.find_element(By.XPATH, "//div[@class='help-content']/h1").text
+    expected_text = 'Cancel Items or Orders'
+    assert expected_text == actual_text, f'expected {expected_text}, but got {actual_text}'
+
+
+*****
+Homework3_3 BDD
+Features:
+Test
+# Created by Thinkpad at 2/4/2021
+Feature: Amazon Shopping cart test
+
+  Scenario: User can search for Amazon Shopping cart
+    Given Open amazon page
+    When Click on Amazon shopping cart icon
+    Then Product results Shopping Cart is empty are shown
+
+
+Steps:
+from selenium.webdriver.common.by import By
+from behave import given, when, then
+from selenium.webdriver.common.keys import Keys
+
+@given('Open amazon page')
+def open_amazonhelp(context):
+    context.driver.get('https://www.amazon.com/')
+
+
+@when('Click on Amazon shopping cart icon')
+def click_amazon_shoppingcart(context):
+    search_icon = context.driver.find_element(By.ID, 'nav-cart-count-container')
+    search_icon.click()
+
+
+@then('Product results shopping cart is empty are shown')
+def verify_search_result(context):
+    actual_text = context.driver.find_element(By.XPATH, "//div[@class='a-row sc-your-amazon-cart-is-empty']/h2").text
+    expected_text = 'Your Amazon Cart is empty'
+    assert expected_text == actual_text, f'expected {expected_text}, but got {actual_text}'

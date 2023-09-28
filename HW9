@@ -1,0 +1,171 @@
+HW9-1
+
+Test:
+
+Feature: Amazon Department Search Test
+
+  Scenario: User can select and search in Amazon Department
+    Given Open Amazon page
+    When Select department by alias electronics
+    And Search for Speaker
+    Then Verify electronics department is selected
+
+Steps:
+
+from behave import given, when, then
+from selenium.webdriver.common.by import By
+
+@given('Open Amazon page')
+def open_amazon(context):
+    context.app.main_page.open_main_page()
+
+@When('Select department by alias {alias}')
+def select_department(context, alias):
+    context.app.main_page.select_department(alias)
+
+@when('Search for Speaker')
+def input_amazon_search(context):
+    context.app.main_page.input_amazon_search()
+    context.app.main_page.click_amazon_search_icon()
+
+@then('Verify electronics department is selected')
+def verify_department(context):
+    context.app.cart_result_page.verify_department()
+
+
+Main_page:
+
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
+from selenium import webdriver
+from Pages.Base_page import Page
+
+
+class MainPage(Page):
+    Amazon_Orders = (By.ID, '#nav-orders')
+    Cart_Icon = (By.ID, '#nav-cart-count')
+    SEARCH_ICON = (By.ID, 'nav-search-submit-button')
+    SEARCH_FIELD = (By.ID, 'twotabsearchtextbox')
+    SEARCH_DROPDOWN = (By.CSS_SELECTOR, 'select.nav-search-dropdown')
+
+
+    def open_main_page(self):
+        self.open_page('https://www.amazon.com/')
+
+    def input_amazon_search(self):
+        self.input_text('speaker', *self.SEARCH_FIELD)
+
+    def click_amazon_search_icon(self):
+        self.click(*self.SEARCH_ICON)
+
+    def select_department(self, alias: str):
+        dd = self.find_element(*self.SEARCH_DROPDOWN)
+        select = Select(dd)
+        select.select_by_value(f'search-alias={alias}')
+
+    def click_add_cart(self):
+        self.clcik(*self.ADD_TO_CART_BTN)
+
+Cart_result_page
+
+from selenium.webdriver.common.by import By
+from Pages.Base_page import Page
+
+
+class CartResultPage(Page):
+    PRODUCT_RESULT = (By.XPATH, "//div[@data-component-type='s-search-result']//a[.//span[@class='a-price-whole']]")
+    SEARCH_RESULT = (By.XPATH, "//span[@class='a-size-base-plus a-color-base a-text-normal']")
+    SELECTED_DEPARTMENT_CATEGORY = (By.CSS_SELECTOR, "#nav-subnav[data-category='electronics']")
+
+
+    def click_first_product(self):
+        self.click(*self.PRODUCT_RESULT)
+
+    def verify_cart_result_page(self, result_word):
+        self.verify_text(result_word, *self.SEARCH_RESULT)
+
+    def verify_department(self):
+        self.wait_for_element_appear(*self.SELECTED_DEPARTMENT_CATEGORY)
+
+Application
+
+from Pages.Main_Page import MainPage
+from Pages.Sign_in_page import Signinpage
+from Pages.Cart_Result_Page import CartResultPage
+
+
+class Application:
+
+    def __init__(self, driver):
+        self.driver = driver
+        self.main_page = MainPage(self.driver)
+        self.cart_result_page = CartResultPage(self.driver)
+
+HW9-2
+
+Test:
+
+Feature: Amazon New Arrivals Tab Test
+
+Scenario: User can hover to New Arrivals tab and see details
+    Given Open Amazon product B074TBCSC8 page
+    When Hover over New Arrivals tab
+    Then Verify verifies that the user sees the details
+
+Steps:
+
+from behave import given, when, then
+from selenium.webdriver.common.by import By
+
+
+@given('Open Amazon product B074TBCSC8 page')
+def open_amazon_product_page(context):
+    context.app.product_page.open_amazon_product_page()
+
+@when('Hover over New Arrivals tab')
+def hover_New_Arrivals_tab(context):
+    context.app.product_page.hover_New_Arrivals_tab()
+
+@then('Verify verifies that the user sees the details')
+def verify_user_sees_details(context):
+    context.app.product_page.verify_user_sees_details()
+
+Application
+
+from Pages.Main_Page import MainPage
+from Pages.Sign_in_page import Signinpage
+from Pages.Cart_Result_Page import CartResultPage
+from Pages.Product_page import Productpage
+
+class Application:
+
+    def __init__(self, driver):
+        self.driver = driver
+        self.main_page = MainPage(self.driver)
+        self.cart_result_page = CartResultPage(self.driver)
+        self.product_page = Productpage(self.driver)
+
+Product_page
+
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
+from selenium import webdriver
+from Pages.Base_page import Page
+from selenium.webdriver.common.action_chains import ActionChains
+
+
+class Productpage(Page):
+    NEW_ARRIVALS_TAB = (By.CSS_SELECTOR, 'a[href="/s/ref=sr_hi_2/?_encoding=UTF8&bbn=17020138011&ie=UTF8&qid=1498592471&rh=n%3A7141123011%2Cn%3A17020138011&ref_=sv_sl_6"]')
+    NEW_ARRIVALS_DETAILS = (By.CSS_SELECTOR, "a[href*='fashion-luggage&bbn']")
+
+    def open_amazon_product_page(self):
+        self.open_page('https://www.amazon.com/gp/product/B074TBCSC8')
+
+    def hover_New_Arrivals_tab(self):
+        new_arrivals_tab = self.find_element(*self.NEW_ARRIVALS_TAB)
+        actions = ActionChains(self.driver)
+        actions.move_to_element(new_arrivals_tab)
+        actions.perform()
+
+    def verify_user_sees_details(self):
+        self.wait_for_element_appear(*self.NEW_ARRIVALS_DETAILS)
