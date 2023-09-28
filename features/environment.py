@@ -12,9 +12,9 @@ def browser_init(context):
     """
     :param context: Behave context
     """
-    # driver_path = GeckoDriverManager().install()
-    # service = Service(driver_path)
-    # context.driver = webdriver.Firefox(service=service)
+    driver_path = GeckoDriverManager().install()
+    service = Service(driver_path)
+    context.driver = webdriver.Firefox(service=service)
 
 
     """with chrome"""
@@ -24,7 +24,7 @@ def browser_init(context):
     # context.driver.maximize_window()
 
     """new chrome driver calling option"""
-    context.driver = webdriver.Chrome()
+    # context.driver = webdriver.Chrome()
 
 
 
